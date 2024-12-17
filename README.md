@@ -8,6 +8,11 @@ See live version at: [h2-network.streamlit.app](https://h2-network.streamlit.app
 
 ## Local Installation and Usage
 
+Create and activate environment:
+
+conda create --name <my-env>
+conda activate <my-env>
+
 Install dependencies:
 
 ```sh

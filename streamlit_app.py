@@ -1,4 +1,4 @@
-#ToDo: Verweis auf Fabian Neumann; Button: Deutschland/EU
+#ToDo: Verweis auf Fabian Neumann; Button: Deutschland/EU + Button (2,3 Temperaturniveaus einstellen)
 
 import streamlit as st
 import pandas as pd
@@ -234,31 +234,31 @@ CACHE_TTL = 24*3600 # seconds
 #    return " - ".join(x) if x != 'Nothing' else 'Nothing'
 
 
-@st.cache_data(ttl=CACHE_TTL)
-def load_summary(which):
+#@st.cache_data(ttl=CACHE_TTL)
+#def load_summary(which):
 
-    df = pd.read_csv(f"data/{which}.csv", header=[0,1], index_col=0)
+#    df = pd.read_csv(f"data/{which}.csv", header=[0,1], index_col=0)
 
-    column_dict = {
-        "1.0": "without power expansion",
-        "opt": "with power grid expansion",
-        "H2 grid": "with hydrogen network",
-        "no H2 grid": "without hydrogen network",
-    }
+#   column_dict = {
+#        "1.0": "without power expansion",
+#        "opt": "with power grid expansion",
+#        "H2 grid": "with hydrogen network",
+#        "no H2 grid": "without hydrogen network",
+#    }
 
-    df.rename(columns=column_dict, inplace=True)
-    df.columns = ["\n".join(col).strip() for col in df.columns.values]
+#    df.rename(columns=column_dict, inplace=True)
+#    df.columns = ["\n".join(col).strip() for col in df.columns.values]
 
-    df = df.groupby(df.index.map(rename_techs_tyndp), axis=0).sum()
+#    df = df.groupby(df.index.map(rename_techs_tyndp), axis=0).sum()
 
-    missing = df.index.difference(preferred_order)
-    order = preferred_order.intersection(df.index).append(missing)
-    df = df.loc[order, :]
+#    missing = df.index.difference(preferred_order)
+#    order = preferred_order.intersection(df.index).append(missing)
+#    df = df.loc[order, :]
 
-    to_drop = df.index[df.abs().max(axis=1).fillna(0.0) < 1]
-    df.drop(to_drop, inplace=True)
+#    to_drop = df.index[df.abs().max(axis=1).fillna(0.0) < 1]
+#    df.drop(to_drop, inplace=True)
 
-    return df[df.sum().sort_values().index].T
+#    return df[df.sum().sort_values().index].T
 
 
 ### MAIN
@@ -356,7 +356,7 @@ with st.sidebar:
         help='Left button must be selected for all other choices in this segment.',
     )
 
-    number_sensitivities = sel["optimistic_costs"] + sel["imports"] + sel["hydrogen_in_shipping"] + sel["no_onwind"]
+    number_sensitivities = sel["optimistic_costs"] + sel["no_onwind"] #+ sel["imports"] + sel["hydrogen_in_shipping"] 
 
 
     # st.info("""
@@ -418,6 +418,7 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     ylim = config["ylim"][idx]
 
     plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3, tools=[hover])
+
 
     st.bokeh_chart(hv.render(plot, backend='bokeh'), use_container_width=True)
 

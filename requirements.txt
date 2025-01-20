@@ -17,3 +17,4 @@ pyproj
 scipy
 xarray
 netcdf4
+setuptools>=58.0.0

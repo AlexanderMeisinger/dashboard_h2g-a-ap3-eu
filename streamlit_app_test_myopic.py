@@ -8,13 +8,13 @@ import yaml
 import plotly.graph_objects as go
 from matplotlib.colors import to_rgba
 from contextlib import suppress
-#from bokeh.models import HoverTool  
 import geopandas as gpd
 import networkx as nx
 import hvplot.networkx as hvnx
 import holoviews as hv
 import datetime
 import hvplot.pandas
+import plotly.express as px
 
 from helpers import prepare_colors, rename_techs_tyndp, get_cmap
 
@@ -421,24 +421,43 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     color = [colors[c] for c in df.columns]
 
     unit = choices[idx].split(" (")[1][:-1] # ugly
-    tooltips = [
-        ('technology', "@carrier"),
-        ('value', " ".join(['@value{0.00}', unit])),
-    ]
-    #hover = HoverTool(tooltips=tooltips)
 
     ylim = config["ylim"][idx]
 
-    import plotly.express as px
-    #plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3, tools=[hover])
-    #plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3)
-    plot = px.bar(df)
+    plot = px.bar(
+    df,
+    x=df.index,  # Assuming the DataFrame index represents the x-axis
+    y=df.columns,  # Stack the bars using the columns of the DataFrame
+    color_discrete_sequence=color,  # Apply the color sequence
+    labels={"value": f"{choices[idx]}", "index": ""},
+    height=720,
+    )
 
-    # Display the Plotly figure
+    # Update layout for font scaling and legend
+    plot.update_layout(
+        font=dict(size=18),  # Global font size, analogous to hvplot's fontscale
+        xaxis=dict(
+            title=dict(font=dict(size=18)),  # X-axis title font size
+            tickfont=dict(size=16),  # X-axis tick labels font size
+        ),
+        yaxis=dict(
+            title=dict(font=dict(size=18)),  # Y-axis title font size
+            tickfont=dict(size=16),  # Y-axis tick labels font size
+            tickformat=".0f"
+        ),
+        legend=dict(
+            title=dict(text=""),  # Remove the legend title
+            font=dict(size=16),  # Legend font size
+        ),
+    )
+
+    # Add hover tooltips
+    plot.update_traces(
+        hovertemplate="Technology: %{x}<br>Value: %{y:.2f}<br>"
+    )
+
+    # Display the Plotly chart in Streamlit
     st.plotly_chart(plot, use_container_width=True)
-
-    #st.bokeh_chart(hv.render(plot, backend='bokeh'), use_container_width=True)
-
 
 #if (display == "System operation") and (number_sensitivities <= 1):
 

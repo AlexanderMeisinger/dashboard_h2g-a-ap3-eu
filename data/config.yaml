@@ -23,6 +23,7 @@ tech_colors:
   solar PV: "#f9d002"
   solar thermal: '#ffbf2b'
   solar rooftop: '#ffea80'
+  solar-hsat: '#ffc04c'
   # gas
   OCGT: '#e0986c'
   OCGT marginal: '#e0986c'
@@ -48,6 +49,8 @@ tech_colors:
   agriculture machinery: '#abdeff'
   shipping oil: "#808080"
   land transport oil: '#afafaf'
+  oil primary: '#c9c9c9'
+  oil refining: '#bfbfbf'
   # nuclear
   Nuclear: '#ff8c00'
   Nuclear marginal: '#ff8c00'
@@ -57,6 +60,7 @@ tech_colors:
   Coal: '#545454'
   coal: '#545454'
   Coal marginal: '#545454'
+  coal for industry: '#4a4a4a'
   solid: '#545454'
   Lignite: '#826837'
   lignite: '#826837'
@@ -65,6 +69,8 @@ tech_colors:
   biogas: '#e3d37d'
   biogas upgrading: '#e3d37d'
   biomass: '#baa741'
+  biomass boiler: '#baa741' #
+  unsustainable solid biomass: '#91854B' #
   solid biomass: '#baa741'
   solid biomass CHP: '#baa741'
   solid biomass transport: '#baa741'
@@ -73,6 +79,7 @@ tech_colors:
   solid biomass CHP CC: '#aeb841'
   solid biomass for industry co2 from atmosphere: '#736412'
   solid biomass for industry co2 to stored: '#47411c'
+  unsustainable bioliquids: '#8A6B2A' #
   # power transmission
   lines: '#6c9459'
   transmission lines: '#6c9459'
@@ -143,6 +150,7 @@ tech_colors:
   H2 Fuel Cell: '#c251ae'
   H2 Electrolysis: '#ff29d9'
   power-to-hydrogen: '#ff29d9'
+  H2 Store: '#9c2a8d' 
   # syngas
   Sabatier: '#9850ad'
   methanation: '#c44ce6'
@@ -155,7 +163,9 @@ tech_colors:
   aviation fuels: '#a1ffe6'
   naphtha for industry: '#57ebc4'
   methanolisation: '#83d6d5'
+  methanolisation4: '#79c8c5'
   methanol: '#468c8b'
+  industry methanol: '#3d7f7e'
   shipping methanol: '#468c8b'
   shipping fuels: '#468c8b'
   shipping methanol emissions: '#468c8b'
@@ -181,6 +191,7 @@ tech_colors:
   shipping oil emissions: "#555555"
   land transport oil emissions: '#777777'
   agriculture machinery oil emissions: '#333333'
+  co2 sequestered: '#1E5745' #
   # other
   shipping: '#03a2ff'
   power-to-heat: '#2fb537'

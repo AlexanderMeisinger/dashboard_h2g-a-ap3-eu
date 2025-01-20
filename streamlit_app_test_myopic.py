@@ -8,7 +8,7 @@ import yaml
 import plotly.graph_objects as go
 from matplotlib.colors import to_rgba
 from contextlib import suppress
-from bokeh.models import HoverTool  
+#from bokeh.models import HoverTool  
 import geopandas as gpd
 import networkx as nx
 import hvplot.networkx as hvnx
@@ -425,13 +425,19 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
         ('technology', "@carrier"),
         ('value', " ".join(['@value{0.00}', unit])),
     ]
-    hover = HoverTool(tooltips=tooltips)
+    #hover = HoverTool(tooltips=tooltips)
 
     ylim = config["ylim"][idx]
 
-    plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3, tools=[hover])
+    import plotly.express as px
+    #plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3, tools=[hover])
+    #plot = df.hvplot.bar(stacked=True, height=720, color=color, ylim=ylim, line_width=0, ylabel=choices[idx]).opts(fontscale=1.3)
+    plot = px.bar(df)
 
-    st.bokeh_chart(hv.render(plot, backend='bokeh'), use_container_width=True)
+    # Display the Plotly figure
+    st.plotly_chart(plot, use_container_width=True)
+
+    #st.bokeh_chart(hv.render(plot, backend='bokeh'), use_container_width=True)
 
 
 #if (display == "System operation") and (number_sensitivities <= 1):

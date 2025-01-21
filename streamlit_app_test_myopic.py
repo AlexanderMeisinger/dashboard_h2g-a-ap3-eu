@@ -329,14 +329,14 @@ with st.sidebar:
         help='Left button must be selected for all other choices in this segment.',
     )
 
-    choices = {0: "no", 1: "yes"}
-    sel["imports"] = st.radio(
-        ":earth_africa: All liquid hydrocarbons imported",
-        choices,
-        format_func=lambda x: choices[x],
-        horizontal=True,
-        help='Left button must be selected for all other choices in this segment.',
-    )
+    #choices = {0: "no", 1: "yes"}
+    #sel["imports"] = st.radio(
+    #    ":earth_africa: All liquid hydrocarbons imported",
+    #    choices,
+    #    format_func=lambda x: choices[x],
+    #    horizontal=True,
+    #    help='Left button must be selected for all other choices in this segment.',
+    #)
 
     choices = {0: "yes", 1: "No"}
     sel["no_h2grid"] = st.radio(
@@ -347,14 +347,14 @@ with st.sidebar:
         help='Left button must be selected for all other choices in this segment.',
     )
 
-    choices = {0: "yes", 1: "no"}
-    sel["no_onwind"] = st.radio(
-        ":wind_blowing_face: Onshore wind expansion",
-        choices,
-        format_func=lambda x: choices[x],
-        horizontal=True,
-        help='Left button must be selected for all other choices in this segment.',
-    )
+    #choices = {0: "yes", 1: "no"}
+    #sel["no_onwind"] = st.radio(
+    #    ":wind_blowing_face: Onshore wind expansion",
+    #    choices,
+    #    format_func=lambda x: choices[x],
+    #    horizontal=True,
+    #    help='Left button must be selected for all other choices in this segment.',
+    #)
 
     number_sensitivities = sel["low_carbon"] + sel["no_h2grid"] #+ sel["no_onwind"] + sel["imports"]
 
@@ -384,7 +384,7 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     choices = config["scenarios"]
     idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
 
-    ds = xr.open_dataset("data/scenarios.nc")
+    ds = xr.open_dataset("data/scenarios-h2-co2.nc")
 
     accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
     df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)
@@ -417,6 +417,9 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
         df.drop("solid biomass", axis=1, inplace=True)
         df.drop("unsustainable bioliquids", axis=1, inplace=True)
         df.drop("unsustainable solid biomass", axis=1, inplace=True)
+
+    if idx == 'conversion':
+        df.drop("unsustainable bioliquids", axis=1, inplace=True)
 
     color = [colors[c] for c in df.columns]
 

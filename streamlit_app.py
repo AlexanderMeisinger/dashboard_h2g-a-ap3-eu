@@ -384,7 +384,7 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     choices = config["scenarios"]
     idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
 
-    ds = xr.open_dataset("data/scenarios.nc")
+    ds = xr.open_dataset("data/scenarios_streamlit.nc")
 
     accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
     df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)

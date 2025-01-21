@@ -1,5 +1,4 @@
-# H2Global meets Africa: 
-# Energy demand modelling in Germany and the EU"
+# H2Global meets Africa: Energy demand modelling in Germany and the EU"
 
 Base: [![DOI](https://zenodo.org/badge/451538981.svg)](https://zenodo.org/badge/latestdoi/451538981)
 

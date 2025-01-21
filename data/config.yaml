@@ -347,18 +347,19 @@ operation:
     168H: weekly
 
 scenarios:
+  energy: Energy Balance (TWh/a)
+  hydrogen: Hydrogen Balance (TWh/a)
   costs: Total System Costs (bn€/a)
+  co2: Carbon Dioxide Balance (MtCO2/a)
   generation: Generation Capacities (GW)
   storage: Storage Capacities (TWh)
   conversion: Conversion Capacities (GW)
-  energy: Energy Balance (TWh/a)
-  co2: Carbon Dioxide Balance (MtCO2/a)
-  # hydrogen: Hydrogen Balance (TWh/a)
-
+  
 ylim:
+  energy: [-15000,15000]
+  hydrogen: [-15000,15000]
   costs: [0,1000]
+  co2: [-600,600]
   generation: [0,7000]
   storage: [0,200]
   conversion: [0,11000]
-  energy: [-15000,15000]
-  co2: [-600,600]

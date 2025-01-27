@@ -292,7 +292,8 @@ with st.sidebar:
 
 
     pages = [
-        "Scenario comparison",
+        "Europe",
+        "Germany",
         #"Spatial configurations",
         #"System operation",
         #"Sankey of energy flows",
@@ -377,14 +378,14 @@ with st.sidebar:
 
 ## PAGES
 
-if (display == "Scenario comparison") and (number_sensitivities <= 1):
+if (display == "Europe") and (number_sensitivities <= 1):
 
-    st.title("Scenario Comparison")
+    st.title("Europe")
 
     choices = config["scenarios"]
     idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
 
-    ds = xr.open_dataset("data/scenarios_streamlit.nc")
+    ds = xr.open_dataset("data/EU_scenarios_streamlit.nc")
 
     accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
     df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)
@@ -397,13 +398,14 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     }
 
     df.rename(index=to_rename, inplace=True)
-    df.index = ["".join(col[1]).strip() for col in df.index.values]
+    df.index = ["".join(str(col[1])).strip() for col in df.index.values]
 
     df.sort_index(inplace=True)
 
     df = df[df.sum().sort_values(ascending=False).index]
 
     #ToDo: Double check storage especially methanol
+    """
     if idx == 'storage':
         df.drop("co2 sequestered", axis=1, inplace=True)
         df.drop("coal", axis=1, inplace=True)
@@ -420,8 +422,13 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
 
     if idx == 'conversion':
         df.drop("unsustainable bioliquids", axis=1, inplace=True)
+    """
+    
+    with open("/mnt/e/H2GMA/Github/Europe/analyse-h2g-a-ap3-eu/config/config.myopic_main.yaml") as file:
+        config_pypsa = yaml.safe_load(file)
 
-    color = [colors[c] for c in df.columns]
+    #color = config_pypsa["plotting"]["tech_colors"]
+    #color = [colors[c] for c in config_pypsa["plotting"]["tech_colors"]]
 
     unit = choices[idx].split(" (")[1][:-1] # ugly
 
@@ -431,7 +438,98 @@ if (display == "Scenario comparison") and (number_sensitivities <= 1):
     df,
     x=df.index,  # Assuming the DataFrame index represents the x-axis
     y=df.columns,  # Stack the bars using the columns of the DataFrame
-    color_discrete_sequence=color,  # Apply the color sequence
+    #color_discrete_sequence=color,  # Apply the color sequence
+    labels={"value": f"{choices[idx]}", "index": ""},
+    height=720,
+    )
+
+    # Update layout for font scaling and legend
+    plot.update_layout(
+        font=dict(size=18),  # Global font size, analogous to hvplot's fontscale
+        xaxis=dict(
+            title=dict(font=dict(size=18)),  # X-axis title font size
+            tickfont=dict(size=16),  # X-axis tick labels font size
+        ),
+        yaxis=dict(
+            title=dict(font=dict(size=18)),  # Y-axis title font size
+            tickfont=dict(size=16),  # Y-axis tick labels font size
+            tickformat=".0f"
+        ),
+        legend=dict(
+            title=dict(text=""),  # Remove the legend title
+            font=dict(size=16),  # Legend font size
+        ),
+    )
+
+    # Add hover tooltips
+    plot.update_traces(
+        hovertemplate="Technology: %{x}<br>Value: %{y:.2f}<br>"
+    )
+
+    # Display the Plotly chart in Streamlit
+    st.plotly_chart(plot, use_container_width=True)
+
+if (display == "Germany") and (number_sensitivities <= 1):
+
+    st.title("Germany")
+
+    choices = config["scenarios"]
+    idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
+
+    ds = xr.open_dataset("data/DE_scenarios_streamlit.nc")
+
+    accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
+    df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)
+
+    to_rename = {
+        "1.0": "without power expansion",
+        "opt": "with power grid expansion",
+        "H2 grid": "with hydrogen network",
+        "no H2 grid": "without hydrogen network",
+    }
+
+    df.rename(index=to_rename, inplace=True)
+    df.index = ["".join(str(col[1])).strip() for col in df.index.values]
+
+    df.sort_index(inplace=True)
+
+    df = df[df.sum().sort_values(ascending=False).index]
+
+    #ToDo: Double check storage especially methanol
+    """
+    if idx == 'storage':
+        df.drop("co2 sequestered", axis=1, inplace=True)
+        df.drop("coal", axis=1, inplace=True)
+        df.drop("lignite", axis=1, inplace=True)
+        df.drop("methanol", axis=1, inplace=True)
+        df.drop("uranium", axis=1, inplace=True, errors="ignore")
+
+    #ToDo: Add biomass capacities
+    if idx == 'generation':
+        df.drop("biogas", axis=1, inplace=True)
+        df.drop("solid biomass", axis=1, inplace=True)
+        df.drop("unsustainable bioliquids", axis=1, inplace=True)
+        df.drop("unsustainable solid biomass", axis=1, inplace=True)
+
+    if idx == 'conversion':
+        df.drop("unsustainable bioliquids", axis=1, inplace=True)
+    """
+    
+    with open("/mnt/e/H2GMA/Github/Europe/analyse-h2g-a-ap3-eu/config/config.myopic_main.yaml") as file:
+        config_pypsa = yaml.safe_load(file)
+
+    #color = config_pypsa["plotting"]["tech_colors"]
+    #color = [colors[c] for c in config_pypsa["plotting"]["tech_colors"]]
+
+    unit = choices[idx].split(" (")[1][:-1] # ugly
+
+    ylim = config["ylim"][idx]
+
+    plot = px.bar(
+    df,
+    x=df.index,  # Assuming the DataFrame index represents the x-axis
+    y=df.columns,  # Stack the bars using the columns of the DataFrame
+    #color_discrete_sequence=color,  # Apply the color sequence
     labels={"value": f"{choices[idx]}", "index": ""},
     height=720,
     )

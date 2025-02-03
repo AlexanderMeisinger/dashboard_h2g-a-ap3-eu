@@ -16,88 +16,9 @@ import datetime
 import hvplot.pandas
 import plotly.express as px
 
-from helpers import rename_techs_energy_balance, prepare_colors, rename_techs_h2_balance, rename_techs_capacities
+from helpers import rename_techs_energy_balance, prepare_colors, rename_techs_h2_balance
 
 CACHE_TTL = 24*3600 # seconds
-
-#def plot_sankey(connections):
-
-#    labels = np.unique(connections[["source", "target"]])
-
-#    nodes = pd.Series({v: i for i, v in enumerate(labels)})
-
-#    node_colors = pd.Series(nodes.index.map(colors).fillna("grey"), index=nodes.index)
-
-#    link_colors = [
-#        "rgba{}".format(to_rgba(node_colors[src], alpha=0.5))
-#        for src in connections.source
-#    ]
-
-#    fig = go.Figure(
-#        go.Sankey(
-#            arrangement="snap",  # [snap, nodepad, perpendicular, fixed]
-#            valuesuffix=" TWh",
-#            valueformat=".1f",
-#            node=dict(pad=4, thickness=10, label=nodes.index, color=node_colors),
-#            link=dict(
-#                source=connections.source.map(nodes),
-#                target=connections.target.map(nodes),
-#                value=connections.value,
-#                label=connections.label,
-#                color=link_colors,
-#            ),
-#        )
-#    )
-
-#    fig.update_layout(
-#        height=800,
-#        margin=dict(l=0, r=20, t=0, b=0)
-#    )
-
-#    return fig
-
-
-#def plot_carbon_sankey(co2):
-
-#    labels = np.unique(co2[["source", "target"]])
-
-#    nodes = pd.Series({v: i for i, v in enumerate(labels)})
-
-#    node_colors = pd.Series(nodes.index.map(colors).fillna("grey"), index=nodes.index)
-
-#    link_colors = [
-#        "rgba{}".format(to_rgba(colors[src], alpha=0.5))
-#        for src in co2.label
-#    ]
-
-#    fig = go.Figure(
-#        go.Sankey(
-#            arrangement="freeform",  # [snap, nodepad, perpendicular, fixed]
-#            valuesuffix=" MtCO2",
-#            valueformat=".1f",
-#            node=dict(
-#                pad=4,
-#                thickness=10,
-#                label=nodes.index,
-#                color=node_colors
-#            ),
-#            link=dict(
-#                source=co2.source.map(nodes),
-#                target=co2.target.map(nodes),
-#                value=co2.value,
-#                label=co2.label,
-#                color=link_colors
-#            ),
-#        )
-#    )
-
-#    fig.update_layout(
-#        height=800, 
-#        margin=dict(l=100, r=0, t=0, b=150)
-#    )
-
-#    return fig
-
 
 #@st.cache_data(ttl=CACHE_TTL)
 #def nodal_balance(carrier, **kwargs):
@@ -301,24 +222,6 @@ with st.sidebar:
 
     sel = {}
 
-    #choices = {1: "yes", 0: "no"}
-    #sel["power_grid"] = st.radio(
-    #    ":zap: Electricity network expansion",
-    #    choices, 
-    #    format_func=lambda x: choices[x],
-    #    horizontal=True
-    #)
-
-    #choices = {1: "yes", 0: "no"}
-    #sel["hydrogen_grid"] = st.radio(
-    #    ":droplet: Hydrogen network expansion",
-    #    choices,
-    #    format_func=lambda x: choices[x],
-    #    horizontal=True
-    #)
-
-    #st.write("---")
-
     choices = {0: "2 °C", 1: "1.5 °C"}
     sel["low_carbon"] = st.radio(
         ":stopwatch: Temperature rise",
@@ -370,12 +273,13 @@ with st.sidebar:
 
 if (display == "Europe") and (number_sensitivities <= 1):
 
+    st.markdown("<br>", unsafe_allow_html=True)
     st.title("Europe")
 
     choices = config["EU_scenarios"]
     idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
 
-    ds = xr.open_dataset("data/EU_scenarios_streamlit.nc")
+    ds = xr.open_dataset("data/EU_scenarios_streamlit_2.0-C.nc")
 
     accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
     df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)
@@ -385,27 +289,53 @@ if (display == "Europe") and (number_sensitivities <= 1):
     if idx == "energy":
         df.columns = df.columns.map(rename_techs_energy_balance)
         df = df.groupby(axis=1, level=0).sum()
+        
         to_drop = df.columns[(df.abs() < 50).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+        
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
     elif idx == "hydrogen": 
         df.columns = df.columns.map(rename_techs_h2_balance)
         df = df.groupby(axis=1, level=0).sum()
+        
         to_drop = df.columns[(df.abs() < 50).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
-    elif idx == "costs" or idx == "co2":
+    else:
         df.columns = df.columns.map(rename_techs_energy_balance)
         df = df.groupby(axis=1, level=0).sum()
+        
         to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+        
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
-    elif idx == idx == "generation" or idx == "storage" or idx == "conversion":
-        df.columns = df.columns.map(rename_techs_capacities)
-        df = df.groupby(axis=1, level=0).sum()
+
+
+    #ToDo: Check storage
+    if idx == 'storage':
+         df.drop("co2", axis=1, inplace=True)
+         df.drop("biomass", axis=1, inplace=True)
+         df.drop("carbon capture", axis=1, inplace=True)
+         df.drop("methanol", axis=1, inplace=True)
+         df.drop("methane", axis=1, inplace=True)
+         df.drop("others", axis=1, inplace=True)
+         df.drop("liquid hydrocarbon", axis=1, inplace=True)
+         df.drop("oil", axis=1, inplace=True)
+         df.drop("solar PV", axis=1, inplace=True)
+         df.drop("gas", axis=1, inplace=True, errors="ignore")
+         df.drop("ammonia store", axis=1, inplace=True, errors="ignore")
+
+    # ToDo: Check biomass capacities
+    if idx == 'generation':
+        df.drop("biomass", axis=1, inplace=True)
+
+    # ToDo: Check biomass capacities
+    if idx == 'conversion':
+        df.drop("biomass", axis=1, inplace=True)
+
 
     colors = prepare_colors(config)
     color = [colors[c] for c in df.columns]
@@ -451,12 +381,13 @@ if (display == "Europe") and (number_sensitivities <= 1):
 
 if (display == "Germany") and (number_sensitivities <= 1):
 
+    st.markdown("<br>", unsafe_allow_html=True)
     st.title("Germany")
 
     choices = config["DE_scenarios"]
     idx = st.selectbox("View", choices, format_func=lambda x: choices[x], label_visibility='hidden')
 
-    ds = xr.open_dataset("data/DE_scenarios_streamlit.nc")
+    ds = xr.open_dataset("data/DE_scenarios_streamlit_2.0-C.nc")
 
     accessors = {k: v for k, v in sel.items() if k not in ['power_grid', 'hydrogen_grid']}
     df = ds[idx].sel(**accessors, drop=True).to_dataframe().squeeze().unstack(level=0).dropna(axis=1)
@@ -466,27 +397,52 @@ if (display == "Germany") and (number_sensitivities <= 1):
     if idx == "energy":
         df.columns = df.columns.map(rename_techs_energy_balance)
         df = df.groupby(axis=1, level=0).sum()
+        
         to_drop = df.columns[(df.abs() < 50).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+        
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
     elif idx == "hydrogen": 
         df.columns = df.columns.map(rename_techs_h2_balance)
         df = df.groupby(axis=1, level=0).sum()
-        to_drop = df.columns[(df.abs() < 50).all(axis=0)] # ToDo: Outsource energy threshold
-        df.drop(columns=to_drop, inplace=True)
-    elif idx == "costs" or idx == "co2":
-        df.columns = df.columns.map(rename_techs_energy_balance)
-        df = df.groupby(axis=1, level=0).sum()
+        
         to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+    else:
+        df.columns = df.columns.map(rename_techs_energy_balance)
+        df = df.groupby(axis=1, level=0).sum()
+        
+        to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
+        df.drop(columns=to_drop, inplace=True)
+        
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
-    elif idx == idx == "generation" or idx == "storage" or idx == "conversion":
-        df.columns = df.columns.map(rename_techs_capacities)
-        df = df.groupby(axis=1, level=0).sum()
+
+
+    #ToDo: Check storage
+    if idx == 'storage':
+         df.drop("co2", axis=1, inplace=True, errors="ignore")
+         df.drop("biomass", axis=1, inplace=True, errors="ignore")
+         df.drop("carbon capture", axis=1, inplace=True, errors="ignore")
+         df.drop("methanol", axis=1, inplace=True, errors="ignore")
+         df.drop("methane", axis=1, inplace=True, errors="ignore")
+         df.drop("others", axis=1, inplace=True, errors="ignore")
+         df.drop("liquid hydrocarbon", axis=1, inplace=True, errors="ignore")
+         df.drop("oil", axis=1, inplace=True, errors="ignore")
+         df.drop("solar PV", axis=1, inplace=True, errors="ignore")
+         df.drop("gas", axis=1, inplace=True, errors="ignore")
+         df.drop("ammonia store", axis=1, inplace=True, errors="ignore")
+
+    # ToDo: Check biomass capacities
+    if idx == 'generation':
+        df.drop("biomass", axis=1, inplace=True, errors="ignore")
+
+    # ToDo: Check biomass capacities
+    if idx == 'conversion':
+        df.drop("biomass", axis=1, inplace=True, errors="ignore")
 
     colors = prepare_colors(config)
     color = [colors[c] for c in df.columns]

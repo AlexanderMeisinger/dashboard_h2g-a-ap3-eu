@@ -1,4 +1,6 @@
-#ToDo: Verweis auf Fabian Neumann; Button: Deutschland/EU + Button (2,3 Temperaturniveaus einstellen)
+# This script visualize results from PyPSA-Eur via Streamlit
+# Author: Alexander Meisinger
+# Base: https://github.com/fneum/spatial-sector-dashboard and https://github.com/PyPSA/pypsa-eur
 
 import streamlit as st
 import pandas as pd
@@ -19,168 +21,6 @@ import plotly.express as px
 from helpers import rename_techs_energy_balance, prepare_colors, rename_techs_h2_balance
 
 CACHE_TTL = 24*3600 # seconds
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def nodal_balance(carrier, **kwargs):
-
-#    ds = xr.open_dataset("data/time-series.nc")
-
-#    df = ds[carrier].sel(**sel, drop=True).to_pandas().dropna(how='all', axis=1)
-
-#    df = df.groupby(df.columns.map(rename_techs_tyndp), axis=1).sum()
-
-#    df = df.loc[:, ~df.columns.isin(["H2 pipeline", "transmission lines"])]
-
-#    missing = df.columns.difference(preferred_order)
-#    order = preferred_order.intersection(df.columns).append(missing)
-#    df = df.loc[:, order]
-    
-#    return df
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def load_report(**kwargs):
-#    ds1 = xr.open_dataset("data/resources.nc")
-#    ds2 = xr.open_dataset("data/report.nc")
-#    ds = xr.merge([ds1,ds2])
-#    df = ds.sel(**sel, drop=True).to_dataframe().unstack(level=1).dropna(how='all', axis=1)
-
-#    translate_0 = {
-#        "demand": "Demand (TWh)",
-#        "capacity_factor": "Capacity Factors (%)",
-#        "cop": "Coefficient of Performance (-)",
-#        "biomass_potentials": "Potentiacl (TWh)",
-#        "salt_caverns": "Potential (TWh)",
-#        "potential_used": "Used Potential (%)",
-#        "curtailment": "Curtailment (%)",
-#        "capacity": "Capacity (GW)",
-#        "io": "Import-Export Balance (TWh)",
-#        "lcoe": "Levelised Cost of Electricity (€/MWh)",
-#        "market_value": "Market Values (€/MWh)",
-#        "prices": "Market Prices (€/MWh)",
-#        "storage": "Storage Capacity (GWh)",
-#    }
-
-#    translate_1 = {
-#        "electricity": "Electricity",
-#        "AC": "Electricity",
-#        "transmission lines": "Electricity",
-#        "H2": "Hydrogen",
-#        "H2 storage": "hydrogen",
-#        "hydrogen": "Hydrogen",
-#        "oil": "Liquid Hydrocarbons",
-#        "total": "Total",
-#        "gas": "Methane",
-#        "heat": "Heat",
-#        "offwind-ac": "Offshore Wind (AC)",
-#        "offwind-dc": "Offshore Wind (DC)",
-#        "onwind": "Onshore Wind",
-#        "onshore wind": "Onshore Wind",
-#        "offshore wind": "Offshore Wind",
-#        "hydroelectricity": "Hydro Electricity",
-#        "PHS": "Pumped-hydro storage",
-#        "hydro": "Hydro Reservoir",
-#        "ror": "Run of River",
-#        "solar": "Solar PV (utility)",
-#        "solar PV": "Solar PV (utility)",
-#        "solar rooftop": "Solar PV (rooftop)",
-#        "ground heat pump": "Ground-sourced Heat Pump",
-#        "air heat pump": "Air-sourced Heat Pump",
-#        "biogas": "Biogas",
-#        "biomass": "Biomass",
-#        "solid biomass": "Solid Biomass",
-#        "nearshore": "Hydrogen Storage (nearshore cavern)",
-#        "onshore": "Hydrogen Storage (onshore cavern)",
-#        "offshore": "Hydrogen Storage (offshore cavern)",
-#    }
-
-#    df.rename(columns=translate_0, level=0, inplace=True)
-#    df.rename(columns=translate_1, level=1, inplace=True)
-
-#    return df
-
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def load_regions():
-#    fn = "data/regions_onshore_elec_s_181.geojson"
-#    gdf = gpd.read_file(fn).set_index('name')
-#    gdf['name'] = gdf.index
-#    gdf.geometry = gdf.to_crs(3035).geometry.simplify(1000).to_crs(4326)
-#    return gdf
-
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def load_positions():
-#    buses = pd.read_csv("data/buses.csv", index_col=0)
-#    return pd.concat([buses.x, buses.y], axis=1).apply(tuple, axis=1).to_dict()
-
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def make_electricity_graph(**kwargs):
-
-#    ds = xr.open_dataset("data/electricity-network.nc")
-#    edges = ds.sel(**kwargs, drop=True).to_pandas()
-
-#    edges["Total Capacity (GW)"] = edges.s_nom_opt.clip(lower=1e-3)
-#    edges["Reinforcement (GW)"] = (edges.s_nom_opt - edges.s_nom).clip(lower=1e-3)
-#    edges["Original Capacity (GW)"] = edges.s_nom.clip(lower=1e-3)
-#    edges["Maximum Capacity (GW)"] = edges.s_nom_max.clip(lower=1e-3)
-#    edges["Technology"] = edges.carrier
-#    edges["Length (km)"] = edges.length
-
-#    attr = ["Total Capacity (GW)", "Reinforcement (GW)", "Original Capacity (GW)", "Maximum Capacity (GW)", "Technology", "Length (km)"]
-#    G = nx.from_pandas_edgelist(edges, 'bus0', 'bus1', edge_attr=attr)
-
-#    return G
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def make_hydrogen_graph(**kwargs):
-
-#    ds = xr.open_dataset("data/hydrogen-network.nc")
-#    edges = ds.sel(**kwargs, drop=True).to_pandas()
-
-#    edges["Total Capacity (GW)"] = edges.p_nom_opt.clip(lower=1e-3)
-#    edges["New Capacity (GW)"] = edges.p_nom_opt_new.clip(lower=1e-3)
-#    edges["Retrofitted Capacity (GW)"] = edges.p_nom_opt_retro.clip(lower=1e-3)
-#    edges["Maximum Retrofitting (GW)"] = edges.max_retro.clip(lower=1e-3)
-#    edges["Length (km)"] = edges.length
-#    edges["Name"] = edges.index
-
-#    attr = ["Total Capacity (GW)", "New Capacity (GW)", "Retrofitted Capacity (GW)", "Maximum Retrofitting (GW)", "Length (km)", "Name"]
-#    G = nx.from_pandas_edgelist(edges, 'bus0', 'bus1', edge_attr=attr)
-
-#    return G
-
-
-#def parse_spatial_options(x):
-#    return " - ".join(x) if x != 'Nothing' else 'Nothing'
-
-
-#@st.cache_data(ttl=CACHE_TTL)
-#def load_summary(which):
-
-#    df = pd.read_csv(f"data/{which}.csv", header=[0,1], index_col=0)
-
-#   column_dict = {
-#        "1.0": "without power expansion",
-#        "opt": "with power grid expansion",
-#        "H2 grid": "with hydrogen network",
-#        "no H2 grid": "without hydrogen network",
-#    }
-
-#    df.rename(columns=column_dict, inplace=True)
-#    df.columns = ["\n".join(col).strip() for col in df.columns.values]
-
-#    df = df.groupby(df.index.map(rename_techs_tyndp), axis=0).sum()
-
-#    missing = df.index.difference(preferred_order)
-#    order = preferred_order.intersection(df.index).append(missing)
-#    df = df.loc[order, :]
-
-#    to_drop = df.index[df.abs().max(axis=1).fillna(0.0) < 1]
-#    df.drop(to_drop, inplace=True)
-
-#    return df[df.sum().sort_values().index].T
-
 
 ### MAIN
 
@@ -207,16 +47,10 @@ with st.sidebar:
     st.markdown("""
         **FENES**
     """)
-    # Explore trade-offs between power grid and hydrogen network expansion.
-
 
     pages = [
         "Europe",
         "Germany",
-        #"Spatial configurations",
-        #"System operation",
-        #"Sankey of energy flows",
-        #"Sankey of carbon flows"
     ]
     display = st.selectbox("Pages", pages, help="Choose your view on the system.")
 
@@ -420,7 +254,6 @@ if (display == "Germany") and (number_sensitivities <= 1):
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
-
 
     #ToDo: Check storage
     if idx == 'storage':

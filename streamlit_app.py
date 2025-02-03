@@ -18,7 +18,7 @@ import datetime
 import hvplot.pandas
 import plotly.express as px
 
-from helpers import rename_techs_energy_balance, prepare_colors, rename_techs_h2_balance
+from helpers import rename_techs_energy_balance, prepare_colors, rename_techs_h2_balance, rename_tech_capacity
 
 CACHE_TTL = 24*3600 # seconds
 
@@ -136,6 +136,12 @@ if (display == "Europe") and (number_sensitivities <= 1):
         
         to_drop = df.columns[(df.abs() < 50).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+    elif idx == "storage" or idx == "generation" or idx == "conversion":
+        df.columns = df.columns.map(rename_tech_capacity)
+        df = df.groupby(axis=1, level=0).sum()
+        
+        to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
+        df.drop(columns=to_drop, inplace=True)
     else:
         df.columns = df.columns.map(rename_techs_energy_balance)
         df = df.groupby(axis=1, level=0).sum()
@@ -150,25 +156,33 @@ if (display == "Europe") and (number_sensitivities <= 1):
 
     #ToDo: Check storage
     if idx == 'storage':
-         df.drop("co2", axis=1, inplace=True)
-         df.drop("biomass", axis=1, inplace=True)
-         df.drop("carbon capture", axis=1, inplace=True)
-         df.drop("methanol", axis=1, inplace=True)
-         df.drop("methane", axis=1, inplace=True)
-         df.drop("others", axis=1, inplace=True)
-         df.drop("liquid hydrocarbon", axis=1, inplace=True)
-         df.drop("oil", axis=1, inplace=True)
-         df.drop("solar PV", axis=1, inplace=True)
+         df.drop("co2", axis=1, inplace=True, errors="ignore")
+         df.drop("co2 sequestered", axis=1, inplace=True, errors="ignore")
+         df.drop("electricity distribution grid", axis=1, inplace=True, errors="ignore")
+         df.drop("methanol", axis=1, inplace=True, errors="ignore")
+         df.drop("oil", axis=1, inplace=True, errors="ignore")
+         df.drop("oil refining", axis=1, inplace=True, errors="ignore")
+         df.drop("solar rooftop", axis=1, inplace=True, errors="ignore")
+         df.drop("solid biomass", axis=1, inplace=True, errors="ignore")
+         df.drop("unsustainable biogas", axis=1, inplace=True, errors="ignore")
+         df.drop("unsustainable bioliquids", axis=1, inplace=True, errors="ignore")
+         df.drop("unsustainable solid biomass", axis=1, inplace=True, errors="ignore")
+         df.drop("Solar", axis=1, inplace=True, errors="ignore")
+         df.drop("biogas", axis=1, inplace=True, errors="ignore")
          df.drop("gas", axis=1, inplace=True, errors="ignore")
-         df.drop("ammonia store", axis=1, inplace=True, errors="ignore")
+         df.drop("ammonia_store", axis=1, inplace=True, errors="ignore") # Check again
 
     # ToDo: Check biomass capacities
     if idx == 'generation':
-        df.drop("biomass", axis=1, inplace=True)
+        df.drop("biogas", axis=1, inplace=True, errors="ignore")
+        df.drop("solid biomass", axis=1, inplace=True, errors="ignore")
+        df.drop("unsustainable biogas", axis=1, inplace=True, errors="ignore")
+        df.drop("unsustainable bioliquids", axis=1, inplace=True, errors="ignore")
+        df.drop("unsustainable solid biomass", axis=1, inplace=True, errors="ignore")
 
     # ToDo: Check biomass capacities
     if idx == 'conversion':
-        df.drop("biomass", axis=1, inplace=True)
+        df.drop("unsustainable bioliquids", axis=1, inplace=True, errors="ignore")
 
 
     colors = prepare_colors(config)
@@ -244,6 +258,12 @@ if (display == "Germany") and (number_sensitivities <= 1):
         
         to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
         df.drop(columns=to_drop, inplace=True)
+    elif idx == "storage" or idx == "generation" or idx == "conversion":
+        df.columns = df.columns.map(rename_tech_capacity)
+        df = df.groupby(axis=1, level=0).sum()
+        
+        to_drop = df.columns[(df.abs() < 1).all(axis=0)] # ToDo: Outsource energy threshold
+        df.drop(columns=to_drop, inplace=True)
     else:
         df.columns = df.columns.map(rename_techs_energy_balance)
         df = df.groupby(axis=1, level=0).sum()
@@ -254,28 +274,6 @@ if (display == "Germany") and (number_sensitivities <= 1):
         missing = df.columns.difference(preferred_order_energy_balance)
         order = preferred_order_energy_balance.intersection(df.columns).append(missing)
         df = df.loc[:, order]
-
-    #ToDo: Check storage
-    if idx == 'storage':
-         df.drop("co2", axis=1, inplace=True, errors="ignore")
-         df.drop("biomass", axis=1, inplace=True, errors="ignore")
-         df.drop("carbon capture", axis=1, inplace=True, errors="ignore")
-         df.drop("methanol", axis=1, inplace=True, errors="ignore")
-         df.drop("methane", axis=1, inplace=True, errors="ignore")
-         df.drop("others", axis=1, inplace=True, errors="ignore")
-         df.drop("liquid hydrocarbon", axis=1, inplace=True, errors="ignore")
-         df.drop("oil", axis=1, inplace=True, errors="ignore")
-         df.drop("solar PV", axis=1, inplace=True, errors="ignore")
-         df.drop("gas", axis=1, inplace=True, errors="ignore")
-         df.drop("ammonia store", axis=1, inplace=True, errors="ignore")
-
-    # ToDo: Check biomass capacities
-    if idx == 'generation':
-        df.drop("biomass", axis=1, inplace=True, errors="ignore")
-
-    # ToDo: Check biomass capacities
-    if idx == 'conversion':
-        df.drop("biomass", axis=1, inplace=True, errors="ignore")
 
     colors = prepare_colors(config)
     color = [colors[c] for c in df.columns]

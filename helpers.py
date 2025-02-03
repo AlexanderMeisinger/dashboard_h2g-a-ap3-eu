@@ -141,6 +141,94 @@ def rename_techs_h2_balance(label):
 
         return label
 
+def rename_tech_capacity(label):
+        prefix_to_remove = [
+            "residential ",
+            "services ",
+            "urban ",
+            "rural ",
+            "central ",
+            "decentral "
+        ]
+    
+        rename_if_contains_dict = {
+        "water tanks": "hot water storage", 
+        }
+        
+        rename = {
+            "BEV charger": "battery electric vehicles",
+            "EV battery": "battery electric vehicles",
+            "V2G": "battery electric vehicles",
+            "H2 Store": "hydrogen storage",
+            "Onshore Wind": "onshore wind",
+            "Offshore Wind (AC)": "offshore wind (AC)",
+            "Offshore Wind (DC)": "offshore wind (DC)",
+            "Offshore Wind (Floating)": "offshore wind",
+            "Pumped Hydro Storage": "pumped hydro storage",
+            "Reservoir & Dam": "reservoir & dam",
+            "Run of River": "run of river",
+            "Solar": "solar PV", 
+            "oil primary": "oil",
+            "Onshore Wind": "onshore wind",
+            "solid biomass CHP": "biomass",
+            "solid biomass CHP CC": "biomass",
+            "biogas to gas": "biomass",
+            "air heat pump": "power-to-heat",
+            "ground heat pump": "power-to-heat",
+            "resistive heater": "power-to-heat",
+            "Fischer-Tropsch": "fischer-tropsch",
+            "coal for industry": "coal", 
+            "solid biomass for industry": "biomass",
+            "solid biomass for industry CC": "biomass",
+            "biomass boiler": "biomass",
+            "gas for industry": "methane",
+            "gas for industry CC": "methane",
+            "gas boiler": "methane",
+            "CCGT": "methane",
+            "SMR": "steam methane reforming",
+            "SMR CC": "steam methane reforming",
+            "CHP": "methane",
+            "Combined-Cycle Gas": "methane",
+            "Open-Cycle Gas": "methane",
+            "H2 for industry": "hydrogen",
+            "land transport fuel cell": "hydrogen",
+            "H2 Fuel Cell": "hydrogen",
+            "H2 Electrolysis": "hydrogen",
+            "kerosene for aviation": "kerosene",
+            "naphtha for industry": "naphtha",
+            "agriculture machinery oil": "oil",
+            "shipping oil": "oil", 
+            "oil refining": "oil",
+            "land transport oil": "oil",
+            "industry methanol": "methanol",
+            "shipping methanol": "methanol",
+            "oil boiler": "oil",
+            "DAC": "direct air capture",
+            "process emissions CC": "process emissions",
+            "Sabatier": "methanation",
+            "transmission lines": "others",
+            "electricity distribution grid": "others",
+            "AC": "others", 
+            "DC": "others",
+            "B2B": "others", 
+            "H2 pipeline": "hydrogen",
+            "Haber-Bosch": "haber-bosch"
+            }
+
+        for ptr in prefix_to_remove:
+            while label.startswith(ptr):  # Ensure all occurrences are removed
+                label = label[len(ptr):]
+
+        for old,new in rename_if_contains_dict.items():
+            if old in label:
+                label = new
+
+        for old,new in rename.items():
+            if old == label:
+                label = new
+
+        return label
+
 
 def prepare_colors(config):
     colors = config["tech_colors"]

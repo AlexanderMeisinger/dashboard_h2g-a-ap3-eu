@@ -141,36 +141,6 @@ def rename_techs_h2_balance(label):
 
         return label
 
-def rename_techs_capacities(label):
-        prefix_to_remove = [
-            "residential ",
-            "services ",
-            "urban ",
-            "rural ",
-            "central ",
-            "decentral "
-        ]
-    
-        rename_if_contains_dict = {
-        }
-
-        rename = {
-        }
-
-        for ptr in prefix_to_remove:
-            while label.startswith(ptr):  # Ensure all occurrences are removed
-                label = label[len(ptr):]
-
-        for old,new in rename_if_contains_dict.items():
-            if old in label:
-                label = new
-
-        for old,new in rename.items():
-            if old == label:
-                label = new
-
-        return label
-
 
 def prepare_colors(config):
     colors = config["tech_colors"]

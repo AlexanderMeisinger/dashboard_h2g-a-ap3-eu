@@ -1,6 +1,5 @@
 tiles: "OSM"
 
-
 tech_colors:
   # wind
   onwind: "#235ebc"
@@ -207,6 +206,7 @@ tech_colors:
   hydrogen pipeline: '#f081dc'
   H2 pipeline retrofitted: '#ba99b5'
   H2 Fuel Cell: '#c251ae'
+  H2 fuel cell: '#c251ae'
   H2 Electrolysis: '#ff29d9'
   H2 electrolysis: '#ff29d9'
   power-to-hydrogen: '#ff29d9'
@@ -266,7 +266,7 @@ tech_colors:
   gas-to-power/heat: '#ee8340'
   waste: '#e3d37d'
   other: '#000000'
-  others: '#000000'
+  others: '#808080'
   import pipeline-h2: '#fff6e0'
   import shipping-lh2: '#ebe1ca'
   import shipping-lch4: '#d6cbb2'

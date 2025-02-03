@@ -1,17 +1,12 @@
-# Interactive dashboard code for the paper "The Potential Role of a Hydrogen Network in Europe"
+# H2Global meets Africa: Energy demand modelling in Germany and the EU"
 
-[![DOI](https://zenodo.org/badge/451538981.svg)](https://zenodo.org/badge/latestdoi/451538981)
+Base: [![DOI](https://zenodo.org/badge/451538981.svg)](https://zenodo.org/badge/latestdoi/451538981)
 
 Code for interactive dashboard for results exploration.
 
-See live version at: [h2-network.streamlit.app](https://h2-network.streamlit.app)
+See live version at: https://dashboardh2g-a-ap3-eu-lhzgn5ezesjvapjuoorzbp.streamlit.app/
 
 ## Local Installation and Usage
-
-Create and activate environment:
-
-conda create --name <my-env>
-conda activate <my-env>
 
 Install dependencies:
 

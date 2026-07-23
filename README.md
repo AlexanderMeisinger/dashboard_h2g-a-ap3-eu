@@ -24,7 +24,10 @@ Start interactive dashboard:
 streamlit run streamlit_app.py
 ```
 
-## License
+## Acknowledgement
+We gratefully acknowledge funding from the H2Global meets Africa project (03SF0703A) by the German Federal Ministry
+of Research, Technology and Space.
 
+## License
 [MIT](LICENSE)
 

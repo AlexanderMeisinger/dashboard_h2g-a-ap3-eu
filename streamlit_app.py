@@ -124,7 +124,7 @@ with st.sidebar:
              electricity, buildings, transport, agriculture and industry at high
              spatio-temporal resolution. The code for the energy model and for data preparation is available on
              [Github-Model](https://github.com/AlexanderMeisinger/pypsa-eur/tree/H2G-A-Demand-Europe-WP3) and                  
-             [Github-Preparation](https://github.com/AlexanderMeisinger/Demand-Europe-Preparation).
+             [Github-Preparation](https://github.com/AlexanderMeisinger/Demand-Europe-Preparation). Further input data and results are available on [Zenodo](https://doi.org/10.5281/zenodo.21340997).
              """)
 
 ## PAGES

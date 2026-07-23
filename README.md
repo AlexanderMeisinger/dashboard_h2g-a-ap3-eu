@@ -8,7 +8,7 @@ Preparation: [Demand-Europe-Preparation](https://github.com/AlexanderMeisinger/a
 
 ## Code for interactive dashboard for results exploration.
 
-See live version at: https://europe-demand.streamlit.app/
+See live version at: https://europedemand.streamlit.app/
 
 ## Local Installation and Usage
 
